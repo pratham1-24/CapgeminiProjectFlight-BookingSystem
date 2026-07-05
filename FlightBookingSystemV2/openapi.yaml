@@ -1,0 +1,749 @@
+openapi: 3.0.3
+info:
+  title: Flight Booking System API
+  description: |
+    RESTful API for the Flight Booking System built with ASP.NET Core 8.0.
+    
+    ## Authentication
+    - **Customer endpoints** require a Bearer JWT token obtained via `/api/auth/signin`
+    - **Admin endpoints** require a Bearer JWT token with the `Admin` role obtained via `/api/admin/login`
+    
+    ## Features
+    - User registration and authentication (JWT)
+    - Flight search
+    - Flight booking (authenticated)
+    - Online check-in with automatic seat assignment
+    - Admin flight and user management
+    - Centralized exception handling
+  version: "1.0.0"
+  contact:
+    name: Flight Booking System
+    email: support@flightbooking.com
+
+servers:
+  - url: https://localhost:7001
+    description: Development HTTPS
+  - url: http://localhost:5001
+    description: Development HTTP
+
+tags:
+  - name: Auth
+    description: Customer registration and authentication
+  - name: Flights
+    description: Flight search
+  - name: Bookings
+    description: Flight booking management
+  - name: CheckIn
+    description: Online check-in operations
+  - name: Admin
+    description: Admin authentication and management operations
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Enter your JWT token. Customer tokens expire in 1 hour, Admin tokens in 2 hours."
+
+  schemas:
+    # ─── Requests ──────────────────────────────────────────────────────────────
+    UserRegisterRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          maxLength: 100
+          example: john_doe
+        password:
+          type: string
+          minLength: 6
+          maxLength: 100
+          example: SecurePass123
+
+    UserLoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: john_doe
+        password:
+          type: string
+          example: SecurePass123
+
+    AdminLoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: admin123
+
+    FlightSearchRequest:
+      type: object
+      required: [origin, destination, flightDate]
+      properties:
+        origin:
+          type: string
+          example: New York
+        destination:
+          type: string
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+          example: "2024-12-01T00:00:00Z"
+
+    BookingSearchRequest:
+      type: object
+      required: [referenceNumber]
+      properties:
+        referenceNumber:
+          type: string
+          example: BK20241201ABCDEF
+
+    BookingCreateRequest:
+      type: object
+      required: [flightId, firstName, lastName, gender]
+      properties:
+        flightId:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          maxLength: 50
+          example: John
+        lastName:
+          type: string
+          maxLength: 50
+          example: Doe
+        gender:
+          type: string
+          enum: [Male, Female, Other]
+          example: Male
+
+    CheckInRequest:
+      type: object
+      required: [referenceNumber]
+      properties:
+        referenceNumber:
+          type: string
+          example: BK20241201ABCDEF
+
+    FlightCreateRequest:
+      type: object
+      required: [flightNumber, origin, destination, flightDate, fare]
+      properties:
+        flightNumber:
+          type: string
+          maxLength: 10
+          example: FL100
+        origin:
+          type: string
+          maxLength: 20
+          example: New York
+        destination:
+          type: string
+          maxLength: 20
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+          example: "2024-12-01T08:00:00Z"
+        fare:
+          type: number
+          format: decimal
+          minimum: 0.01
+          example: 450.00
+
+    FlightUpdateRequest:
+      type: object
+      required: [flightId, flightNumber, origin, destination, flightDate, fare]
+      properties:
+        flightId:
+          type: integer
+          example: 1
+        flightNumber:
+          type: string
+          maxLength: 10
+          example: FL100
+        origin:
+          type: string
+          maxLength: 20
+          example: New York
+        destination:
+          type: string
+          maxLength: 20
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+          example: "2024-12-01T09:00:00Z"
+        fare:
+          type: number
+          format: decimal
+          example: 500.00
+
+    UserUpdateRequest:
+      type: object
+      required: [userId, username, password]
+      properties:
+        userId:
+          type: integer
+          example: 5
+        username:
+          type: string
+          maxLength: 100
+          example: john_updated
+        password:
+          type: string
+          minLength: 6
+          example: NewPass456
+
+    # ─── Responses ─────────────────────────────────────────────────────────────
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        message:
+          type: string
+          example: Login successful.
+        expiresAt:
+          type: string
+          format: date-time
+
+    FlightResponse:
+      type: object
+      properties:
+        flightId:
+          type: integer
+          example: 1
+        flightNumber:
+          type: string
+          example: FL100
+        origin:
+          type: string
+          example: New York
+        destination:
+          type: string
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+        fare:
+          type: number
+          example: 450.00
+
+    BookingResponse:
+      type: object
+      properties:
+        bookingId:
+          type: integer
+          example: 1
+        referenceNumber:
+          type: string
+          example: BK20241201ABCDEF
+        flightId:
+          type: integer
+          example: 1
+        flightNumber:
+          type: string
+          example: FL100
+        origin:
+          type: string
+          example: New York
+        destination:
+          type: string
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+        fare:
+          type: number
+          example: 450.00
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        gender:
+          type: string
+          example: Male
+        bookingDate:
+          type: string
+          format: date-time
+        isCheckedIn:
+          type: boolean
+          example: false
+        seatNumber:
+          type: string
+          nullable: true
+          example: null
+        checkInDate:
+          type: string
+          format: date-time
+          nullable: true
+
+    CheckInResponse:
+      type: object
+      properties:
+        checkInId:
+          type: integer
+          example: 1
+        checkInReference:
+          type: string
+          example: CI20241201ABC123
+        bookingReference:
+          type: string
+          example: BK20241201ABCDEF
+        seatNumber:
+          type: string
+          example: 14C
+        passengerName:
+          type: string
+          example: John Doe
+        flightNumber:
+          type: string
+          example: FL100
+        origin:
+          type: string
+          example: New York
+        destination:
+          type: string
+          example: London
+        flightDate:
+          type: string
+          format: date-time
+        checkInDate:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Check-in successful!
+
+    CheckInStatusResponse:
+      type: object
+      properties:
+        referenceNumber:
+          type: string
+          example: BK20241201ABCDEF
+        isCheckedIn:
+          type: boolean
+          example: true
+        seatNumber:
+          type: string
+          nullable: true
+          example: 14C
+        checkInDate:
+          type: string
+          format: date-time
+          nullable: true
+        passengerName:
+          type: string
+          example: John Doe
+        flightNumber:
+          type: string
+          example: FL100
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully.
+
+    ApiErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Resource not found.
+        statusCode:
+          type: integer
+          example: 404
+        timestamp:
+          type: string
+          format: date-time
+
+# ─── Paths ─────────────────────────────────────────────────────────────────────
+paths:
+
+  # Auth
+  /api/auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new customer
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          description: Registration successful, JWT token returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Username already exists or validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/auth/signin:
+    post:
+      tags: [Auth]
+      summary: Authenticate customer and receive JWT
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  # Flights
+  /api/flights/search:
+    post:
+      tags: [Flights]
+      summary: Search for available flights
+      operationId: searchFlights
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightSearchRequest'
+      responses:
+        '200':
+          description: List of matching flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightResponse'
+
+  # Bookings
+  /api/bookings/search:
+    post:
+      tags: [Bookings]
+      summary: Search for a booking by reference number
+      operationId: searchBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingSearchRequest'
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/bookings/create:
+    post:
+      tags: [Bookings]
+      summary: Create a new booking (JWT required)
+      operationId: createBooking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '401':
+          description: Unauthorized — JWT required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Flight not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  # Check-In
+  /api/checkin/search:
+    post:
+      tags: [CheckIn]
+      summary: Search for a booking for check-in
+      operationId: searchForCheckIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '200':
+          description: Booking details for check-in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/checkin/perform:
+    post:
+      tags: [CheckIn]
+      summary: Perform online check-in and receive seat assignment
+      operationId: performCheckIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '200':
+          description: Check-in successful with seat assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckInResponse'
+        '400':
+          description: Already checked in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/checkin/status/{referenceNumber}:
+    get:
+      tags: [CheckIn]
+      summary: Get check-in status for a booking
+      operationId: getCheckInStatus
+      parameters:
+        - name: referenceNumber
+          in: path
+          required: true
+          schema:
+            type: string
+          example: BK20241201ABCDEF
+      responses:
+        '200':
+          description: Check-in status details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckInStatusResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  # Admin
+  /api/admin/login:
+    post:
+      tags: [Admin]
+      summary: Admin authentication — returns Admin JWT
+      operationId: adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+      responses:
+        '200':
+          description: Admin login successful (token expires in 2 hours)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid admin credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/admin/flights:
+    post:
+      tags: [Admin]
+      summary: Create a new flight (Admin JWT required)
+      operationId: adminCreateFlight
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightCreateRequest'
+      responses:
+        '201':
+          description: Flight created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    put:
+      tags: [Admin]
+      summary: Update an existing flight (Admin JWT required)
+      operationId: adminUpdateFlight
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightUpdateRequest'
+      responses:
+        '200':
+          description: Flight updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Flight not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/admin/flights/{id}:
+    delete:
+      tags: [Admin]
+      summary: Delete a flight by ID (Admin JWT required)
+      operationId: adminDeleteFlight
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Flight deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Flight not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '409':
+          description: Cannot delete — flight has active bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/admin/users:
+    put:
+      tags: [Admin]
+      summary: Update a user's account details (Admin JWT required)
+      operationId: adminUpdateUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'

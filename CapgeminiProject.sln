@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FlightBookingSystemV2", "FlightBookingSystemV2", "{DB4CAB2C-5A9A-BC81-EB77-93C6351FEB2D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FlightBookingSystemV2.Tests", "FlightBookingSystemV2.Tests", "{4A5686A0-98E7-9D68-FE4C-92D9B2FCF3AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBookingSystem", "FlightBookingSystemV2\FlightBookingSystem.csproj", "{7E764791-27BC-898A-93EE-38B79F664316}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBookingSystem.Tests", "FlightBookingSystemV2.Tests\FlightBookingSystem.Tests.csproj", "{C0656BD2-C6FB-A52D-B2FF-34088B9199B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E764791-27BC-898A-93EE-38B79F664316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E764791-27BC-898A-93EE-38B79F664316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E764791-27BC-898A-93EE-38B79F664316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E764791-27BC-898A-93EE-38B79F664316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0656BD2-C6FB-A52D-B2FF-34088B9199B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0656BD2-C6FB-A52D-B2FF-34088B9199B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0656BD2-C6FB-A52D-B2FF-34088B9199B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0656BD2-C6FB-A52D-B2FF-34088B9199B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7E764791-27BC-898A-93EE-38B79F664316} = {DB4CAB2C-5A9A-BC81-EB77-93C6351FEB2D}
+		{C0656BD2-C6FB-A52D-B2FF-34088B9199B0} = {4A5686A0-98E7-9D68-FE4C-92D9B2FCF3AE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC8173E8-0DE3-4288-A4F6-DA0159AE1407}
+	EndGlobalSection
+EndGlobal
